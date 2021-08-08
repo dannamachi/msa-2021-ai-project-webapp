@@ -62,10 +62,13 @@ def index_post():
     error = ""
     # Read raw values from the form
     try:
+        multR = request.form['mult']
+    except Exception as e:
+        multR = "off"
+    try:
         gamenameR = request.form['gamename']
         genresR = request.form['genres']
         tagsR = request.form['tags']
-        multR = request.form['mult']
         platcount = request.form['platcount']
         if request.form['devInputType'] == 1:
             developerR = request.form['developer1']
