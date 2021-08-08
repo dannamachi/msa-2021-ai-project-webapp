@@ -59,49 +59,60 @@ def get_appearance_value(key, value):
 # routing
 @app.route('/', methods=['POST'])
 def index_post():
+    error = ""
     # Read raw values from the form
-    gamenameR = request.form['gamename']
-    genresR = request.form['genres']
-    tagsR = request.form['tags']
-    multR = request.form['mult']
-    platcount = request.form['platcount']
-    if request.form['devInputType'] == 1:
-        developerR = request.form['developer1']
-    else:
-        developerR = request.form['developer2']
-    if request.form['pubInputType'] == 1:
-        publisherR = request.form['publisher1']
-    else:
-        publisherR = request.form['publisher2']
+    try:
+        gamenameR = request.form['gamename']
+        genresR = request.form['genres']
+        tagsR = request.form['tags']
+        multR = request.form['mult']
+        platcount = request.form['platcount']
+        if request.form['devInputType'] == 1:
+            developerR = request.form['developer1']
+        else:
+            developerR = request.form['developer2']
+        if request.form['pubInputType'] == 1:
+            publisherR = request.form['publisher1']
+        else:
+            publisherR = request.form['publisher2']
 
-    # Load the values from .env
-    endpoint = os.environ['ENDPOINT']
+        # Load the values from .env
+        endpoint = os.environ['ENDPOINT']
 
-    # convert to numerical features
-    gamename = replace_with_list_count(remove_special_chars(gamenameR), common_word_list, " ")
-    genres = replace_with_list_count(genresR, common_genre_list)
-    tags = replace_with_list_count(tagsR, common_tag_list)
-    if multR == 'on':
-        mult = 1
-    else:
-        mult = 0
-    developer = get_appearance_value('dev', developerR)
-    publisher = get_appearance_value('pub', publisherR)
+        # convert to numerical features
+        gamename = replace_with_list_count(remove_special_chars(gamenameR), common_word_list, " ")
+        genres = replace_with_list_count(genresR, common_genre_list)
+        tags = replace_with_list_count(tagsR, common_tag_list)
+        if multR == 'on':
+            mult = 1
+        else:
+            mult = 0
+        developer = get_appearance_value('dev', developerR)
+        publisher = get_appearance_value('pub', publisherR)
 
-    # send request to model endpoint
-    headers = {"Content-Type": "application/json"}
-    alldata = {
-        'data': [
-            gamename, publisher, developer, tags, mult, genres, platcount
-        ]
-    }
-    data = json.dumps(alldata)
-    response = requests.post(endpoint, data=data, headers=headers)
+        # send request to model endpoint
+        headers = {"Content-Type": "application/json"}
+        alldata = {
+            'data': [
+                gamename, publisher, developer, tags, mult, genres, platcount
+            ]
+        }
+        data = json.dumps(alldata)
+        response = requests.post(endpoint, data=data, headers=headers)
+
+    except Exception as e:
+        error = str(e)
+
+    if error != "":
+        showAlert = json.dumps( True )
+        errMsg = json.dumps( error )
+        return render_template('index.html', developerList=developerList, publisherList=publisherList, showAlert=showAlert, errMsg=errMsg)
 
     # show alert if request failed
     if response.status_code != 200:
         showAlert = json.dumps( True )
-        return render_template('index.html', developerList=developerList, publisherList=publisherList, showAlert=showAlert)
+        errMsg = json.dumps( response.status_code )
+        return render_template('index.html', developerList=developerList, publisherList=publisherList, showAlert=showAlert, errMsg=errMsg)
 
     # process result if request passes
     number = int(response.json()['data'][0])
@@ -117,4 +128,5 @@ def index_post():
 @app.route('/', methods=['GET'])
 def index():
     showAlert = json.dumps( False )
-    return render_template('index.html', developerList=developerList, publisherList=publisherList, showAlert=showAlert)
+    errMsg = json.dumps( "" )
+    return render_template('index.html', developerList=developerList, publisherList=publisherList, showAlert=showAlert, errMsg=errMsg)

@@ -104,6 +104,7 @@
                   developerList = JSON.parse({{ developerList | tojson }})
                   publisherList = JSON.parse({{ publisherList | tojson }})
                   showAlert = JSON.parse({{ showAlert | tojson }})
+                  errMsg = JSON.parse({{ errMsg | tojson }})
 
                   function toggleInput(key) {
                     var keynoun = (key == 'dev' ? 'developer' : 'publisher');
@@ -130,6 +131,7 @@
                     var alertmsg = document.getElementById('alertblock')
                     if (showAlert) {
                         alertmsg.style.display = 'block'
+                        alertmsg.innerHTML += errMsg
                     } else {
                         alertmsg.style.display = 'none'
                     }
