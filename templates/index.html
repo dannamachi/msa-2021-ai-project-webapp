@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
+        integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+    <title>Game Player Estimator</title>
+</head>
+<body onload="loadSelectOptions()">
+    <div class='row'>
+    <div class="col-md-6" id='leftblock'>
+        <h1>Game Player Predictor</h1>
+        <p>How many people will be playing your game?</p>
+        <p>Enter the relevant info about your game, and click Predict!</p>
+    </div>
+    <div class="col-md-6" id='rightblock'>
+        <h2>Powered by Azure ML</h2>
+        <div>
+            <form method="POST">
+                <div class="form-group" id="titlediv">
+                    <label for="gamename">Game Title:</label>
+                    <textarea id="gamename" name="gamename" cols="8" rows="3" class="form-control"></textarea>
+                </div>
+
+                <input type="hidden" id="devInputType" name="devInputType" value="1">
+                <button type='button' id="devbutton" onclick="toggleInput('dev')">select developer</button>
+                <div class="form-group" id="devdiv1">
+                    <label for="developer1">Developer:</label>
+                    <textarea id="developer1" name="developer1" rows="1" class="form-control"></textarea>
+                </div>
+                <div class="form-group" id="devdiv2">
+                    <label for="developer2">Developer:</label>
+                    <select id="developer2" name="developer2" class="form-control">
+                        
+                    </select>
+                </div>
+
+                <input type="hidden" id="pubInputType" name="pubInputType" value="1">
+                <button type='button' id="pubbutton" onclick="toggleInput('pub')">select publisher</button>
+                <div class="form-group" id="pubdiv1">
+                    <label for="publisher1">Publisher:</label>
+                    <textarea type="text" id="publisher1" name="publisher1" rows="1" class="form-control"></textarea>
+                </div>
+                <div class="form-group" id="pubdiv2">
+                    <label for="publisher2">Publisher:</label>
+                    <select id="publisher2" name="publisher2" class="form-control">
+                        
+                    </select>
+                </div>
+                <div class="form-group" id="genrediv">
+                    <label for="genres">Genres (list all, separate by comma):</label>
+                    <textarea id="genres" name="genres" cols="10" rows="5" class="form-control"></textarea>
+                </div>
+                <div class="form-group" id="tagdiv">
+                    <label for="tags">Tags (list all, separate by comma):</label>
+                    <textarea id="tags" name="tags" cols="10" rows="5" class="form-control"></textarea>
+                </div>
+                <div class="form-group" id="multdiv">
+                    <label for="mult">Multiplayer:</label>
+                    <input type="checkbox" id="mult" name="mult"> 
+                </div>
+                <div class="form-group" id="platdiv">
+                    <label for="platcount">Number of supported platforms:</label>
+                    <input type="number" id="platcount" name="platcount"> 
+                </div>
+
+                <div class="alert alert-warning" role="alert" id='alertblock'>
+                    Something went wrong, please try again later.
+                </div>
+                <div>
+                    <button type="submit" class="btn btn-success">Predict!</button>
+                </div>
+            </form>
+            <style>
+                #alertblock {
+                    display: none
+                }
+                #leftblock {
+                    margin: auto;
+                    text-align: center;
+                }
+                #rightblock {
+                    margin: auto;
+                    text-align: center;
+                }
+                #devdiv1 {
+                    display: block
+                }
+                #devdiv2 {
+                    display: none
+                }
+                #pubdiv1 {
+                    display: block
+                }
+                #pubdiv2 {
+                    display: none
+                }
+            </style>
+
+            <script>
+                // load the objects like you would with a normal jinja template i.e. {{ object }}, but add | tojson
+                // pass it into the parse function
+                  developerList = JSON.parse({{ developerList | tojson }})
+                  publisherList = JSON.parse({{ publisherList | tojson }})
+                  showAlert = JSON.parse({{ showAlert | tojson }})
+
+                  function toggleInput(key) {
+                    var keynoun = (key == 'dev' ? 'developer' : 'publisher');
+                    var devbutton = document.getElementById(`${key}button`);
+                    // toggle magic here
+                    var devdiv1 = document.getElementById(`${key}div1`);
+                    var devdiv2 = document.getElementById(`${key}div2`);
+                    var inputType = document.getElementById(`${key}InputType`)
+                    if (devdiv1.style.display == 'none') {
+                        devdiv1.style.display = 'block'
+                        devdiv2.style.display = 'none'
+                        devbutton.innerHTML = `select a ${keynoun}`;
+                        inputType.value = 1
+                    } else {
+                        devdiv1.style.display = 'none'
+                        devdiv2.style.display = 'block'
+                        devbutton.innerHTML = `${keynoun} not found`;
+                        inputType.value = 2
+                    }
+                  }
+
+                  function loadSelectOptions() {
+                    // show/hide alert box
+                    var alertmsg = document.getElementById('alertblock')
+                    if (showAlert) {
+                        alertmsg.style.display = 'block'
+                    } else {
+                        alertmsg.style.display = 'none'
+                    }
+
+                    // fill in select options for dev & pub
+                    var devselect = document.getElementById("developer2")
+                    for (var dev in developerList) {
+                        devselect.innerHTML += `<option value="${developerList[dev]}">${developerList[dev]}</option>`
+                    }
+                    var pubselect = document.getElementById("publisher2")
+                    for (var pub in publisherList) {
+                        pubselect.innerHTML += `<option value="${publisherList[pub]}">${publisherList[pub]}</option>`
+                    }
+                  }
+            </script>
+        </div>
+    </div>
+    </div>
+</body>
+</html>
