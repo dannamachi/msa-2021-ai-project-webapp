@@ -115,8 +115,13 @@ def index_post():
         return render_template('index.html', developerList=developerList, publisherList=publisherList, showAlert=showAlert, errMsg=errMsg)
 
     # process result if request passes
-    number = int(response.json()['data'][0])
-    gameData = [gamenameR, publisherR, developerR, tagsR, mult, genresR, platcount]
+    try:
+        number = int(float(response.json()['data'][0]))
+        gameData = [gamenameR, publisherR, developerR, tagsR, mult, genresR, platcount]
+    except Exception as e:
+        showAlert = json.dumps( True )
+        errMsg = json.dumps( response.json()['data'][0] )
+        return render_template('index.html', developerList=developerList, publisherList=publisherList, showAlert=showAlert, errMsg=errMsg)
 
     # show result page
     return render_template(
